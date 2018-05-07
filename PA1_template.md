@@ -23,21 +23,29 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 1) Load the data (i.e. read.csv())
 
 Download and unzip file into designated folder:
-```{r}
 
+```r
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download.file(fileUrl, "Activity monitoring data.zip")
 unzip("Activity monitoring data.zip", exdir = "Activity monitoring data")
-
 ```
 
 2) Process/transform the data (if necessary) into a format suitable for your analysis
  
-```{r}
 
+```r
 activity <- read.csv("~/Desktop/R Files/Activity monitoring data/activity.csv")
 head(activity)
+```
 
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
 ```
 
 # What is mean total number of steps taken per day?
@@ -45,46 +53,75 @@ head(activity)
 
 1) Calculate the total number of steps taken per day
 
-```{r}
 
+```r
 total_steps <- tapply(activity$steps, activity$date, sum, na.rm = TRUE)
 head(data.frame(total_steps))
-summary(total_steps)
+```
 
+```
+##            total_steps
+## 2012-10-01           0
+## 2012-10-02         126
+## 2012-10-03       11352
+## 2012-10-04       12116
+## 2012-10-05       13294
+## 2012-10-06       15420
+```
+
+```r
+summary(total_steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##       0    6778   10395    9354   12811   21194
 ```
 
 2) If you do not understand the difference between a histogram and a barplot, research the difference between them. Make a histogram of the total number of steps taken each day
 
-```{r}
 
+```r
 hist(total_steps)
-
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
 
 Or alternatively, with below plot
 
-```{r}
 
+```r
 library(ggplot2)
 qplot(total_steps, binwidth = 1000, xlab = "Total No. of Steps Taken per Day")
-
 ```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
 
 3) Calculate and report the mean and median of the total number of steps taken per day
 
-```{r}
 
+```r
 mean(total_steps)
-median(total_steps)
+```
 
+```
+## [1] 9354.23
+```
+
+```r
+median(total_steps)
+```
+
+```
+## [1] 10395
 ```
 
 # What is the average daily activity pattern?
 
 1) Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r}
 
+```r
 library(ggplot2)
 
 average_steps_per_interval <- aggregate(x = list(averageSteps = activity$steps), by = list(interval = activity$interval), mean, na.rm = TRUE)
@@ -93,19 +130,24 @@ ggplot(data = average_steps_per_interval, aes(x = interval, y = averageSteps)) +
     geom_line() +
     xlab("5-minute Interval") +
     ylab("Average Number of Steps Taken") 
-
 ```
+
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
 
 2) Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
 
+```r
 # Find row with max of steps
 max_steps_row <- which.max(average_steps_per_interval$averageSteps)
 
 # Find interval with this max
 average_steps_per_interval[max_steps_row, ]
+```
 
+```
+##     interval averageSteps
+## 104      835     206.1698
 ```
 
         The interval 835 has the maximum average value of steps (206.1698).
@@ -115,10 +157,13 @@ average_steps_per_interval[max_steps_row, ]
 
 1) Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r}
 
+```r
 sum(is.na(activity$steps))
+```
 
+```
+## [1] 2304
 ```
 
         Total number of rows with NA’s is 2304.
@@ -129,8 +174,8 @@ sum(is.na(activity$steps))
 
 3) Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
 
+```r
 fill_value <- function(steps, interval) {
     filled <- NA
     if (!is.na(steps)) 
@@ -143,29 +188,49 @@ filled_activity$steps <- mapply(fill_value, filled_activity$steps, filled_activi
 
 # Check there is indeed no more NA values
 head(filled_activity)
+```
 
+```
+##       steps       date interval
+## 1 1.7169811 2012-10-01        0
+## 2 0.3396226 2012-10-01        5
+## 3 0.1320755 2012-10-01       10
+## 4 0.1509434 2012-10-01       15
+## 5 0.0754717 2012-10-01       20
+## 6 2.0943396 2012-10-01       25
 ```
 
 4)
 
 - Make a histogram of the total number of steps taken each day.
 
-```{r}
 
+```r
 total_steps <- tapply(filled_activity$steps, filled_activity$date, sum)
 qplot(total_steps, binwidth = 1000, xlab = "Total No. of Steps Taken per Day")
-
 ```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png)
 
 Notice a significant shift of frequency from value 0 (since we excluded/ignored NA values in the earlier case, these are then taken to be value 0), to value 10766 (since we have now replaced the NA values with average value for that 5-min interval).
 
 - Calculate and report the mean and median total number of steps taken per day. 
 
-```{r}
 
+```r
 mean(total_steps)
-median(total_steps)
+```
 
+```
+## [1] 10766.19
+```
+
+```r
+median(total_steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 - Do these values differ from the estimates from the first part of the assignment? 
@@ -185,7 +250,8 @@ median(total_steps)
 
 1) Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
-```{r}
+
+```r
 filled_activity['type_of_day'] <- weekdays(as.Date(filled_activity$date))
 filled_activity$type_of_day[filled_activity$type_of_day  %in% c('Saturday','Sunday') ] <- "weekend"
 filled_activity$type_of_day[filled_activity$type_of_day != "weekend"] <- "weekday"
@@ -195,8 +261,8 @@ filled_activity$type_of_day[filled_activity$type_of_day != "weekend"] <- "weekda
 
 2) Make a panel plot containing a time series plot (i.e. type="l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-```{r}
 
+```r
 # Convert type_of_day from character to factor
 filled_activity$type_of_day <- as.factor(filled_activity$type_of_day)
 
@@ -211,16 +277,16 @@ qplot(interval, steps,
       xlab = "5-min Interval", 
       ylab = "Average No. of Steps", 
       main = "Time Series Plot Across Weekdays and Weekends ") + facet_wrap(~ type_of_day, ncol = 1)
-
 ```
 
+```
+## Warning: Ignoring unknown parameters: type
+```
 
-Process your R markdown file with knit2html() function in R (from the knitr package) by running the function from the console.
-```{r}
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png)
+
 
 library(knitr)  
-setwd("~/Desktop/R Files") 
-knit2html("PA1_template.Rmd") 
-browseURL("PA1_template.html") 
-
-```
+setwd(<working directory>) 
+knit2html(“document.Rmd”) 
+browseURL(“document.html”) 
